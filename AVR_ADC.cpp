@@ -23,9 +23,17 @@ ISR(TIMER1_COMPA_vect)
 	PORTB ^= (1 << PORTB5); // Toggle the LED
 
 	// Start ADC
-	//while ( ADCSRA & (1 << ADSC) ) ;
+	ADCSRA |= (1 << ADEN) | (1 << ADSC ) ;
 
 	USART_Transmit( 'H' ) ;
+}
+
+
+ISR(ADC_vect)
+{
+	// Disable ADC and Stop ADC Conversions
+	ADCSRA &= ~( (1 << ADEN) | (1 << ADSC ) ) ;
+
 }
 
 
@@ -51,7 +59,7 @@ int main( void )
 	// Configure ADC
 	ADMUX |= (1 << REFS0) | (1 << MUX3) ; // Select ADC8
 	// Enable ADC, Enable Interrupts, Select Prescaler to CLK/128
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0) ;
+	ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0) ;
 
 
 	TCCR1B |= (1 << CS12) ; // Start timer at Fcpu/64
