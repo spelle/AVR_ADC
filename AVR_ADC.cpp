@@ -54,7 +54,7 @@ int main( void )
 
 	sei(); //  Enable global interrupts
 
-	USART_Init( MYUBRR ) ;
+	USART_Init( 9600 ) ;
 
 	// Configure ADC
 	ADMUX |= (1 << REFS0) | (1 << MUX3) ; // Select ADC8
