@@ -7,13 +7,7 @@
 
 
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/sleep.h>
-
-
-
-#include <AVR_USART_lib.h>
+#include "AVR_ADC.h"
 
 
 
