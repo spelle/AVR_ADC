@@ -28,10 +28,10 @@
 #ifdef DEBUG
 	#define PDEBUG_INIT( BR ) USART_Init( BR )
 	// no need of a terminal \n. put by default
-	#define PDEBUG( msg ) printf( msg )
+	#define PDEBUG( ... ) printf( __VA_ARGS__ )
 #else /* DEBUG */
 	#define PDEBUG_INIT( BR ) /* not debugging: nothing */
-	#define PDEBUG( msg ) /* not debugging: nothing */
+	#define PDEBUG( ... ) /* not debugging: nothing */
 #endif /* DEBUG */
 
 #endif /* AVR_ADC_H_ */
