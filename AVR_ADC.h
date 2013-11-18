@@ -17,6 +17,7 @@
 
 
 #include <AVR_USART_lib.h>
+#include <AVR_ADC_lib.h>
 
 
 

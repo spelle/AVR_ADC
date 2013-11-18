@@ -17,8 +17,7 @@ ISR(TIMER1_COMPA_vect)
 	PORTB ^= (1 << PORTB5); // Toggle the LED
 
 	// Read the ADC value
-	uint16_t uiADCvalue = ADCL ;
-	uiADCvalue |= (ADCH<<8) ;
+	uint16_t uiADCvalue = ADC_Read() ;
 
 	PDEBUG( "Read ADC value : %i\n", uiADCvalue ) ;
 
@@ -49,16 +48,17 @@ int main( void )
 	TCCR1B |= (1 << CS12) ; // Start timer at Fcpu/64
 
 	// Select the AVcc voltage reference
-	ADMUX |= (1<<REFS0) ;
+	ADC_SelectVoltageReference( AVCC ) ;
 	// Select ADC0
-	ADMUX &= ~(1<<MUX3) & ~(1<<MUX2) & ~(1<<MUX1) & ~(1<<MUX0) ;
+	ADC_SelectChannel( 0 ) ;
 
 	// Enable the ADC, set prescaler to F_CPU/128
-	ADCSRA |= (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0) ;
+	ADC_SelectPrescaler( FCPU_128 ) ;
+	ADC_Enable() ;
 
 	// Start a Single Conversion
-	PRR &= ~(1 << PRADC) ;
-	ADCSRA |= (1 << ADSC) ;
+	ADC_Start() ;
+
 
 	while( 1 )
 	{
