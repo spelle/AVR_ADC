@@ -19,7 +19,12 @@ ISR(TIMER1_COMPA_vect)
 	// Read the ADC value
 	uint16_t uiADCvalue = ADC_Read() ;
 
-	PDEBUG( "Read ADC value : %i\n", uiADCvalue ) ;
+	uiADCvalue <<= 6 ;
+	uiADCvalue /= 3 ;
+	uiADCvalue *= 5 ;
+	uiADCvalue /= 341 ;
+
+	PDEBUG( "Read ADC value : %d, Decimal part : %d\n", uiADCvalue, uiADCvalue&0x003F ) ;
 
 	// Restart a conversion
 	ADC_Start() ;
@@ -48,10 +53,10 @@ int main( void )
 	TCCR1B |= (1 << CS12) ; // Start timer at Fcpu/64
 
 	// Select the AVcc voltage reference
-	ADC_SelectVoltageReference( Int_1_1V ) ;
+	ADC_SelectVoltageReference( AVCC ) ;
 	//ADMUX |= (1<<REFS0) | (1<<REFS0) ;
 	// Select ADC0
-	ADC_SelectChannel( 8 ) ;
+	ADC_SelectChannel( 0 ) ;
 	//ADMUX |= (1<<MUX3) ;
 
 	// Enable the ADC, set prescaler to F_CPU/128
