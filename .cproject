@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="de.innot.avreclipse.configuration.app.debug.1542984336">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.debug.1542984336" moduleId="org.eclipse.cdt.core.settings" name="ATmega328P_16MHz_Debug">
@@ -59,7 +57,7 @@
 								<option id="de.innot.avreclipse.cppcompiler.option.language.uchar.1342751011" name="char is unsigned (-funsigned-char)" superClass="de.innot.avreclipse.cppcompiler.option.language.uchar" value="false" valueType="boolean"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.language.ubitfields.107299218" name="bitfields are unsigned (-funsigned-bitfields)" superClass="de.innot.avreclipse.cppcompiler.option.language.ubitfields" value="false" valueType="boolean"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.language.noexceptions.1293424096" name="Do not use Exceptions (-fno-exceptions)" superClass="de.innot.avreclipse.cppcompiler.option.language.noexceptions" value="true" valueType="boolean"/>
-								<option id="de.innot.avreclipse.cppcompiler.option.def.813422544" superClass="de.innot.avreclipse.cppcompiler.option.def" valueType="definedSymbols">
+								<option id="de.innot.avreclipse.cppcompiler.option.def.813422544" name="Define Syms (-D)" superClass="de.innot.avreclipse.cppcompiler.option.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
 								</option>
 								<inputType id="de.innot.avreclipse.cppcompiler.input.333357324" superClass="de.innot.avreclipse.cppcompiler.input"/>
