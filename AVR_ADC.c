@@ -11,6 +11,15 @@
 
 
 
+#define B 13349 // 208.9 in FIXED(6)
+#define A 774 // 12.1 in FIXED(6)
+
+
+
+uint16_t uiCurrentADCChannel = 0 ;
+
+
+
 ISR(TIMER1_COMPA_vect)
 {
 	// Toggle the LED
@@ -19,14 +28,44 @@ ISR(TIMER1_COMPA_vect)
 	// Read the ADC value
 	uint16_t uiADCvalue = ADC_Read() ;
 
-	uiADCvalue <<= 6 ;
-	uiADCvalue /= 3 ;
-	uiADCvalue *= 5 ;
-	uiADCvalue /= 341 ;
+	if ( 0 == uiCurrentADCChannel )
+	{
+		// uiADCvalue = a * T + b (=) T = ( uiADCvalue - b ) / a
+#ifdef DEBUG
+		double fTemp = ((double)uiADCvalue - 208.99) / 12.1 - 1;
+		PDEBUG( "CTN-Float\t%f\t", fTemp ) ;
+#endif
+		uiADCvalue -= 209 ;
+		uiADCvalue <<= 6 ; // for better resolution
+		uiADCvalue /= 121 ;
+		uiADCvalue *= 10 ;
+		uiADCvalue -= 1<<6 ;
 
-	PDEBUG( "Read ADC value : %d, Decimal part : %d\n", uiADCvalue, uiADCvalue&0x003F ) ;
+		PDEBUG( "CTN\t%d.%2.2d\t", uiADCvalue>>6, ((uiADCvalue&0x003F)*100+32)/64 ) ;
+		uiCurrentADCChannel = 1 ;
+	}
+	else
+		if( 1 == uiCurrentADCChannel )
+		{
+#ifdef DEBUG
+			double fTemp = uiADCvalue / 610.0 * 25.0 ;
+			PDEBUG( "LM335-Float\t%f\t", fTemp ) ;
+#endif
+			PDEBUG( "RAW\t%d\t", uiADCvalue ) ;
+			uint32_t ui32ADCvalue = uiADCvalue ;
+			ui32ADCvalue <<= 6 ; // for better resolution
+			ui32ADCvalue *= 5 ;
+			ui32ADCvalue /= 1023 ;
+			ui32ADCvalue *= 100 ;
+			ui32ADCvalue -= 17482 ; // 273.15 << 6
+			uiADCvalue = (uint16_t) ui32ADCvalue ;
+			PDEBUG( "LM335\t%d.%2.2d\n", uiADCvalue>>6, ((uiADCvalue&0x003F)*100+32)/64 ) ;
+
+			uiCurrentADCChannel = 0 ;
+		}
 
 	// Restart a conversion
+	ADC_SelectChannel( uiCurrentADCChannel ) ;
 	ADC_Start() ;
 }
 
@@ -54,22 +93,17 @@ int main( void )
 
 	// Select the AVcc voltage reference
 	ADC_SelectVoltageReference( AVCC ) ;
-	//ADMUX |= (1<<REFS0) | (1<<REFS0) ;
+
 	// Select ADC0
-	ADC_SelectChannel( 0 ) ;
-	//ADMUX |= (1<<MUX3) ;
+	ADC_SelectChannel( uiCurrentADCChannel ) ;
 
 	// Enable the ADC, set prescaler to F_CPU/128
 	ADC_SelectPrescaler( FCPU_128 ) ;
-	//ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0) ;
 
 	ADC_Enable() ;
-	//ADCSRA |= (1 << ADEN)
-	//PRR &= ~(1 << PRADC) ;
 
 	// Start a Single Conversion
 	ADC_Start() ;
-	//ADCSRA |= (1 << ADSC) ;
 
 	while( 1 )
 	{
