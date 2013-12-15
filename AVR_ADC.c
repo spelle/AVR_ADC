@@ -30,51 +30,76 @@ ISR(TIMER1_COMPA_vect)
 
 	if ( 0 == uiCurrentADCChannel )
 	{
-		// uiADCvalue = a * T + b (=) T = ( uiADCvalue - b ) / a
-#ifdef DEBUG
-		double fTemp = ((double)uiADCvalue - 208.99) / 12.1 - 1;
-		PDEBUG( "CTN-Float\t%f\t", fTemp ) ;
-#endif
-		uiADCvalue -= 209 ;
-		uiADCvalue <<= 6 ; // for better resolution
-		uiADCvalue /= 121 ;
-		uiADCvalue *= 10 ;
-		uiADCvalue -= 1<<6 ;
-
-		PDEBUG( "CTN\t%d.%2.2d\t", uiADCvalue>>6, ((uiADCvalue&0x003F)*100+32)/64 ) ;
-		uiCurrentADCChannel = 1 ;
-	}
-	else
-		if( 1 == uiCurrentADCChannel )
+		double dA, dB, dB1, dB2, dY1, dY2, dX1, dX2 ;
+		if( uiADCvalue < Temp_vs_ADC_Value_LookupTable[0].uiADC_Value )
 		{
-#ifdef DEBUG
-			double fTemp = uiADCvalue / 610.0 * 25.0 ;
-			PDEBUG( "LM335-Float\t%f\t", fTemp ) ;
-#endif
-			PDEBUG( "RAW\t%d\t", uiADCvalue ) ;
-			uint32_t ui32ADCvalue = uiADCvalue ;
-			ui32ADCvalue <<= 6 ; // for better resolution
-			ui32ADCvalue *= 5 ;
-			ui32ADCvalue /= 1023 ;
-			ui32ADCvalue *= 100 ;
-			ui32ADCvalue -= 17482 ; // 273.15 << 6
-			uiADCvalue = (uint16_t) ui32ADCvalue ;
-			PDEBUG( "LM335\t%d.%2.2d\n", uiADCvalue>>6, ((uiADCvalue&0x003F)*100+32)/64 ) ;
+			dX1 = Temp_vs_ADC_Value_LookupTable[0].uiTemp ;
+			dY1 = Temp_vs_ADC_Value_LookupTable[0].uiADC_Value ;
+			dX2 = Temp_vs_ADC_Value_LookupTable[1].uiTemp ;
+			dY2 = Temp_vs_ADC_Value_LookupTable[1].uiADC_Value ;
+		}
+		else if( uiADCvalue >= Temp_vs_ADC_Value_LookupTable[sizeof(Temp_vs_ADC_Value_LookupTable)/sizeof(Temp_vs_ADC_Value_t)-1].uiADC_Value )
+		{
+			dX1 = Temp_vs_ADC_Value_LookupTable[sizeof(Temp_vs_ADC_Value_LookupTable)/sizeof(Temp_vs_ADC_Value_t)-2].uiTemp ;
+			dY1 = Temp_vs_ADC_Value_LookupTable[sizeof(Temp_vs_ADC_Value_LookupTable)/sizeof(Temp_vs_ADC_Value_t)-2].uiADC_Value ;
+			dX2 = Temp_vs_ADC_Value_LookupTable[sizeof(Temp_vs_ADC_Value_LookupTable)/sizeof(Temp_vs_ADC_Value_t)-1].uiTemp ;
+			dY2 = Temp_vs_ADC_Value_LookupTable[sizeof(Temp_vs_ADC_Value_LookupTable)/sizeof(Temp_vs_ADC_Value_t)-1].uiADC_Value ;
+		}
+		else
+		{
+			uint16_t ui ;
+			for(
+				ui = 0 ;
+				ui < sizeof(Temp_vs_ADC_Value_LookupTable)/sizeof(uint16_t) &&
+				uiADCvalue >= Temp_vs_ADC_Value_LookupTable[ui].uiADC_Value ;
+				ui++ ) ;
 
-			uiCurrentADCChannel = 0 ;
+			dX1 = (ui*5.0-55.0) ;
+			dY1 = Temp_vs_ADC_Value_LookupTable[ui].uiADC_Value ;
+			dX2 = ((ui+1)*5.0-55.0) ;
+			dY2 = Temp_vs_ADC_Value_LookupTable[ui+1].uiADC_Value ;
 		}
 
+		dA = ( dY2 - dY1)/( dX2 - dX1 ) ;
+		dB2 = dY2 - dA*dX2 ;
+		dB1 = dY1 - dA*dX1 ;
+		dB  = (dB1+dB2)/2.0 ;
+
+		double dTemp = (uiADCvalue - dB) / dA ;
+		dTemp -= 1.0 ;
+
+		PDEBUG( "CTN-Float\t%f\n", dTemp ) ;
+
+		//uiCurrentADCChannel = 0 ;
+	}
+
 	// Restart a conversion
-	ADC_SelectChannel( uiCurrentADCChannel ) ;
+	//ADC_SelectChannel( uiCurrentADCChannel ) ;
 	ADC_Start() ;
 }
 
 
+ISR(PCINT2_vect)
+{
+	if( 0 != (PIND & (1<<PIND6)) )
+	{
+		PORTD ^= (1<<PORTD5) ;
+	}
+}
+
 
 int main( void )
 {
-	// Set Port B direction Register
+	// Set Port B Data Direction Register
 	DDRB	|= (1<<DDB5) ; // For LED on Pin PORTB5
+
+	// Set Port D Data Direction Register
+	DDRD	|= (1<<DDD5) ; // For LED on Pin PORTD5
+
+	// Set All mechanics for Port D6
+	PCMSK2	|= (1<<PCINT22) ;
+	PCICR	|= (1<<PCIE2) ;
+	PORTD	|= (1<<PORTD6) ; // Enable pullup resistor
 
 	// Configure the Timer/Counter1 Control Register A
 	TCCR1A	= 0 ;
@@ -92,7 +117,7 @@ int main( void )
 	TCCR1B |= (1 << CS12) ; // Start timer at Fcpu/64
 
 	// Select the AVcc voltage reference
-	ADC_SelectVoltageReference( AVCC ) ;
+	ADC_SelectVoltageReference( AREF ) ;
 
 	// Select ADC0
 	ADC_SelectChannel( uiCurrentADCChannel ) ;

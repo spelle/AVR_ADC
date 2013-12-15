@@ -75,7 +75,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AVR_USART_lib/${ConfigName}}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/AVR_ADC_lib/ATmega328P_16MHz_Debug}&quot;"/>
 								</option>
-								<option id="de.innot.avreclipse.cpplinker.option.otherlinkargs.338727581" superClass="de.innot.avreclipse.cpplinker.option.otherlinkargs" value="-lm -Wl,-u,vfprintf -lprintf_flt" valueType="string"/>
+								<option id="de.innot.avreclipse.cpplinker.option.otherlinkargs.338727581" name="Other Arguments" superClass="de.innot.avreclipse.cpplinker.option.otherlinkargs" value="-lm -Wl,-u,vfprintf -lprintf_flt" valueType="string"/>
 								<inputType id="de.innot.avreclipse.tool.cpplinker.input.1064663244" name="OBJ Files" superClass="de.innot.avreclipse.tool.cpplinker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
