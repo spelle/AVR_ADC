@@ -29,7 +29,8 @@ typedef struct
 	uint16_t uiTemp ;
 	uint16_t uiADC_Value ;
 } Temp_vs_ADC_Value_t ;
-Temp_vs_ADC_Value_t Temp_vs_ADC_Value_LookupTable[] =
+
+static Temp_vs_ADC_Value_t Temp_vs_ADC_Value_LookupTable[] =
 {
 	{ -55,	   8},
 	{ -50,	  12},
